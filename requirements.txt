@@ -1,0 +1,4 @@
+django>=1.2
+nose
+django-nose
+unittest2
