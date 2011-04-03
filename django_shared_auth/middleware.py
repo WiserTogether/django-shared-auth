@@ -4,7 +4,7 @@ from django.contrib import auth
 from django.utils.http import cookie_date
 
 from . import settings, logger
-from django_sharedauth.backends import SharedAuthBackend
+from .backends import SharedAuthBackend
 
 class SharedAuthConsumerMiddleware(object):
     """

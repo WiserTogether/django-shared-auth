@@ -3,10 +3,10 @@ __doc__ = """
 settings
 """
 
-COOKIE_PATH=getattr(settings, 'SHAREDAUTH_COOKIE_PATH', '/')
-COOKIE_DOMAIN=getattr(settings, 'SHAREDAUTH_COOKIE_PATH', None)
-COOKIE_NAME=getattr(settings, 'SHAREDAUTH_COOKIE_NAME', 'dsatok')
-SIGNED=getattr(settings, 'SHAREDUATH_SIGNED', True)
+COOKIE_PATH=getattr(settings, 'SHARED_AUTH_COOKIE_PATH', '/')
+COOKIE_DOMAIN=getattr(settings, 'SHARED_AUTH_COOKIE_PATH', None)
+COOKIE_NAME=getattr(settings, 'SHARED_AUTH_COOKIE_NAME', 'dsatok')
+SIGNED=getattr(settings, 'SHARED_AUTH_SIGNED', True)
 SECURE=getattr(settings, 'SESSION_COOKIE_SECURE', True)
 
 if SIGNED:

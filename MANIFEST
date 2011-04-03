@@ -1,0 +1,9 @@
+setup.py
+django_shared_auth/__init__.py
+django_shared_auth/backends.py
+django_shared_auth/middleware.py
+django_shared_auth/models.py
+django_shared_auth/settings.py
+django_shared_auth/tests/__init__.py
+django_shared_auth/tests/test_backend.py
+django_shared_auth/tests/test_middleware.py
