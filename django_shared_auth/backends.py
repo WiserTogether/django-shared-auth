@@ -1,6 +1,6 @@
 from django.contrib.auth.backends import ModelBackend
-from django_sharedauth import settings
 from django.contrib.auth.models import User
+from . import settings
 try:
     from django_signed import signed
 except:

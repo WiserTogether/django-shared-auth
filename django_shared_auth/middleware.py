@@ -13,12 +13,12 @@ class SharedAuthConsumerMiddleware(object):
 
     To use, add to MIDDLEWARE_CLASSES after the django AuthenticationMiddleware
         'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django_sharedauth.middleware.SharedAuthConsumerMiddleware',
+        'django_shared_auth.middleware.SharedAuthConsumerMiddleware',
 
     and add the Backend to AUTHENTICATION_BACKENDS
         AUTHENTICATION_BACKENDS = (
             'django.contrib.auth.backends.ModelBackend',
-            'django_sharedauth.backends.SharedAuthBackend',
+            'django_shared_auth.backends.SharedAuthBackend',
         )
     """
     def process_request(self, request):
@@ -45,14 +45,14 @@ class SharedAuthConsumerMiddleware(object):
 
 class SharedAuthProviderMiddleware(object):
     """
-    Create sharedauth cookies for logged-in users, allowing other sites
+    Create shared auth cookies for logged-in users, allowing other sites
     sharing the COOKIE_DOMAIN to automatically log in users with the
     SharedAuthConsumerMiddleware and SharedAuthBackend
 
     add to MIDDLEWARE_CLASSES before the django AuthenticationMiddleware
         MIDDLEWARE_CLASSES = (
             ...
-            'django_sharedauth.middleware.SharedAuthProviderMiddleware',
+            'django_shared_auth.middleware.SharedAuthProviderMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             ...
         )

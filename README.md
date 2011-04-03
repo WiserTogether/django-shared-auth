@@ -16,7 +16,7 @@ domain, you'll probably want to set your SESSION_COOKE_NAME,
 SESSION_COOKIE_DOMAIN or SESSION_COOKIE_PATH so they aren't all trying to
 use the same session.
 
-1. https://github.com/easel/django_sharedauth
+1. https://github.com/easel/django-shared-auth
 2. https://github.com/simonw/django-signed
 
 To provide authentication:
@@ -26,7 +26,7 @@ To provide authentication:
 
     MIDDLEWARE_CLASSES = (
         ...
-        'django_sharedauth.middleware.SharedAuthProviderMiddleware',
+        'django_shared_auth.middleware.SharedAuthProviderMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         ...
     )
@@ -38,7 +38,7 @@ To consume authentication:
     MIDDLEWARE_CLASSES = (
         ...
         'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django_sharedauth.middleware.SharedAuthConsumerMiddleware',
+        'django_shared_auth.middleware.SharedAuthConsumerMiddleware',
         ...
     )
 
@@ -46,5 +46,5 @@ To consume authentication:
 
     AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
-        'django_sharedauth.backends.SharedAuthBackend',
+        'django_shared_auth.backends.SharedAuthBackend',
     )
