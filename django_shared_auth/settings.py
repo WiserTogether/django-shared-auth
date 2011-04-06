@@ -16,3 +16,11 @@ if SIGNED:
         logger.warn('django_signed not in PYTHONPATH, signing unavailable')
         SIGNED=False
 
+# If your application uses a custom user class other than 
+# django.contrib.auth.models.User, specify the class name
+# The custom class will be provided only with the following attributes
+# 1. username
+# 2. email
+# 3. first_name
+# 4. last_name
+USER_CLASS=getattr(settings, 'SHAREDAUTH_USER_CLASS', 'django.contrib.auth.models.User')

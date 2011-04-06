@@ -1,6 +1,7 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from . import settings
+from django.core.urlresolvers import get_callable
 try:
     from django_signed import signed
 except:
@@ -54,15 +55,18 @@ class SharedAuthBackend(ModelBackend):
         load or create a user record from a shared auth cookie
         """
 
-        results = User.objects.filter(username=userdict['u'])
+        user_class = getattr(settings, 'USER_CLASS', 'django.contrib.auth.models.User')
+        user_class = get_callable(user_class)
+            
+        results = user_class.objects.filter(username=userdict['u'])
         if results.count() == 1:
             return results[0]
 
-        results = User.objects.filter(email=userdict['e'])
+        results = user_class.objects.filter(email=userdict['e'])
         if results.count() == 1:
             return results[0]
 
-        u = User(username=userdict['u'],
+        u = user_class(username=userdict['u'],
                  first_name=userdict['f'],
                  last_name=userdict['l'],
                  email=userdict['e'])
