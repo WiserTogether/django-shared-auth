@@ -42,6 +42,9 @@ class SharedAuthConsumerMiddleware(object):
                     # by logging the user in.
                     request.user = user
                     auth.login(request, user)
+        else:
+            if request.user.is_authenticated():
+                auth.logout(request)
 
 class SharedAuthProviderMiddleware(object):
     """
@@ -72,7 +75,7 @@ class SharedAuthProviderMiddleware(object):
         if getattr(request, 'session', None) and \
                 hasattr(request, 'user') and \
                 request.user.is_authenticated() and \
-                not hasattr(request, settings.COOKIE_NAME):
+                not request.COOKIES.has_key(settings.COOKIE_NAME):
 
             if request.session.get_expire_at_browser_close():
                 max_age = None
@@ -88,10 +91,10 @@ class SharedAuthProviderMiddleware(object):
                     domain=settings.COOKIE_DOMAIN,
                     path=settings.COOKIE_PATH,
                     secure=settings.SECURE)
-        if not (getattr(request, 'session', None)
-                and hasattr(request, 'user')
-                and request.user.is_authenticated()) \
-                and hasattr(request, settings.COOKIE_NAME):
+        if not getattr(request, 'session', None) and \
+                hasattr(request, 'user') and \
+                request.user.is_authenticated() and \
+                request.COOKIES.has_key(settings.COOKIE_NAME):
             response.delete_cookie(settings.COOKIE_NAME)
         return response
 
