@@ -91,9 +91,10 @@ class SharedAuthProviderMiddleware(object):
                     domain=settings.COOKIE_DOMAIN,
                     path=settings.COOKIE_PATH,
                     secure=settings.SECURE)
-        if not getattr(request, 'session', None) and \
+        if getattr(request, 'session', None) and \
+                not request.session.keys() and \
                 hasattr(request, 'user') and \
-                request.user.is_authenticated() and \
+                not request.user.is_authenticated() and \
                 request.COOKIES.has_key(settings.COOKIE_NAME):
             response.delete_cookie(settings.COOKIE_NAME)
         return response
