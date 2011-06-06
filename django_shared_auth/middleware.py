@@ -2,6 +2,7 @@ import time
 from django.contrib import auth
 
 from django.utils.http import cookie_date
+from django.http import HttpResponseRedirect
 
 from . import settings, logger
 from .backends import SharedAuthBackend
@@ -42,6 +43,10 @@ class SharedAuthConsumerMiddleware(object):
                     # by logging the user in.
                     request.user = user
                     auth.login(request, user)
+                else:
+                    redirect_to = getattr(settings, 'AUTHENTICATION_FAIL_REDIRECT_URL', None)
+                    if redirect_to:
+                        return HttpResponseRedirect(redirect_to)
         else:
             if request.user.is_authenticated():
                 auth.logout(request)
