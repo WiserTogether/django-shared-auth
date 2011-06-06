@@ -78,25 +78,61 @@ class SharedAuthBackend(ModelBackend):
         """
         encode a sign a string
         """
-        return SharedAuthBackend.userFromDict(signed.loads(signed_str))
+        dct = signed.loads(signed_str)
+
+        should_continue = True
+        extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
+        if extra_params_consumer:
+            extra_params_consumer = get_callable(extra_params_consumer)
+            should_continue = extra_params_consumer(dct['u'], dct['extra_params'])
+
+        if should_continue:
+            return SharedAuthBackend.userFromDict(dct)
+        else:
+            return None
 
     @staticmethod
     def signedStrFromUser(user):
         """
         decode and verify signature of string
         """
-        return signed.dumps(SharedAuthBackend.dictFromUser(user))
+        dct = SharedAuthBackend.dictFromUser(user)
+
+        extra_params_provider = getattr(settings, 'EXTRA_PARAMS_PROVIDER', None)
+        if extra_params_provider:
+            extra_params_provider = get_callable(extra_params_provider)
+            dct['extra_params'] = extra_params_provider(user)
+
+        return signed.dumps(dct)
 
     @staticmethod
     def userFromJsonStr(json_str):
         """
         decode a json string to a user
         """
-        return SharedAuthBackend.userFromDict(json.loads(json_str))
+        dct = json.loads(json_str)
+
+        should_continue = True
+        extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
+        if extra_params_consumer:
+            extra_params_consumer = get_callable(extra_params_consumer)
+            should_continue = extra_params_consumer(dct['extra_params'])
+
+        if should_continue:
+            return SharedAuthBackend.userFromDict(dct)
+        else:
+            return None
 
     @staticmethod
     def jsonStrFromUser(user):
         """
         encode a sign a string
         """
-        return json.dumps(SharedAuthBackend.dictFromUser(user))
+        dct = SharedAuthBackend.dictFromUser(user)
+
+        extra_params_provider = getattr(settings, 'EXTRA_PARAMS_PROVIDER', None)
+        if extra_params_provider:
+            extra_params_provider = get_callable(extra_params_provider)
+            dct['extra_params'] = extra_params_provider(user)
+
+        return json.dumps(dct)
