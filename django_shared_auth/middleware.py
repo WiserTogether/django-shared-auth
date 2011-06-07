@@ -2,6 +2,7 @@ import time
 from django.contrib import auth
 
 from django.utils.http import cookie_date
+from django.http import HttpResponseRedirect
 
 from . import settings, logger
 from .backends import SharedAuthBackend
@@ -42,6 +43,10 @@ class SharedAuthConsumerMiddleware(object):
                     # by logging the user in.
                     request.user = user
                     auth.login(request, user)
+                else:
+                    redirect_to = getattr(settings, 'AUTHENTICATION_FAIL_REDIRECT_URL', None)
+                    if redirect_to:
+                        return HttpResponseRedirect(redirect_to)
         else:
             if request.user.is_authenticated():
                 auth.logout(request)
@@ -92,9 +97,8 @@ class SharedAuthProviderMiddleware(object):
                     path=settings.COOKIE_PATH,
                     secure=settings.SECURE)
         if getattr(request, 'session', None) and \
-                not request.session.keys() and \
-                hasattr(request, 'user') and \
-                not request.user.is_authenticated() and \
+                not (hasattr(request, 'user') and \
+                request.user.is_authenticated()) and \
                 request.COOKIES.has_key(settings.COOKIE_NAME):
             response.delete_cookie(settings.COOKIE_NAME)
         return response

@@ -24,3 +24,12 @@ if SIGNED:
 # 3. first_name
 # 4. last_name
 USER_CLASS=getattr(settings, 'SHAREDAUTH_USER_CLASS', 'django.contrib.auth.models.User')
+
+# The EXTRA_PARAMS_PROVIDER should return a query-string representation of extra information
+EXTRA_PARAMS_PROVIDER=getattr(settings, 'SHAREDAUTH_EXTRA_PARAMS_PROVIDER', None)
+
+# The EXTRA_PARAMS_CONSUMER should return a query-string representation of extra information
+EXTRA_PARAMS_CONSUMER=getattr(settings, 'SHAREDAUTH_EXTRA_PARAMS_CONSUMER', None)
+
+# If the user authentication fails, redirect the user to this URL
+AUTHENTICATION_FAIL_REDIRECT_URL=getattr(settings, 'SHAREDAUTH_AUTHENTICATION_FAIL_REDIRECT_URL', None)
