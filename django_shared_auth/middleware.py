@@ -76,11 +76,15 @@ class SharedAuthProviderMiddleware(object):
         If the authenticated user disappears but the at cookie remains,
         the at cookie should be deleted.
         """
-        modified = True
+        modify = False
+        if 'UPDATE_SHAREDAUTH_COOKIE' in dict(response.items()):
+            response.__delitem__('UPDATE_SHAREDAUTH_COOKIE')
+            modify = True
+
         if getattr(request, 'session', None) and \
                 hasattr(request, 'user') and \
                 request.user.is_authenticated() and \
-                not request.COOKIES.has_key(settings.COOKIE_NAME):
+                (modify or not request.COOKIES.has_key(settings.COOKIE_NAME)):
 
             if request.session.get_expire_at_browser_close():
                 max_age = None
