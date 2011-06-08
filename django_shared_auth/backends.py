@@ -87,7 +87,11 @@ class SharedAuthBackend(ModelBackend):
             should_continue = extra_params_consumer(dct['u'], dct['extra_params'])
 
         if should_continue:
-            return SharedAuthBackend.userFromDict(dct)
+            user = SharedAuthBackend.userFromDict(dct)
+            # Call extra params consumer again so that it can handle params after the user is created
+            if extra_params_consumer:
+                extra_params_consumer(dct['u'], dct['extra_params'])
+            return user
         else:
             return None
 
@@ -119,7 +123,11 @@ class SharedAuthBackend(ModelBackend):
             should_continue = extra_params_consumer(dct['extra_params'])
 
         if should_continue:
-            return SharedAuthBackend.userFromDict(dct)
+            user = SharedAuthBackend.userFromDict(dct)
+            # Call extra params consumer again so that it can handle params after the user is created
+            if extra_params_consumer:
+                extra_params_consumer(dct['u'], dct['extra_params'])
+            return user
         else:
             return None
 
