@@ -84,13 +84,13 @@ class SharedAuthBackend(ModelBackend):
         extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
         if extra_params_consumer:
             extra_params_consumer = get_callable(extra_params_consumer)
-            should_continue = extra_params_consumer(dct['u'], dct['extra_params'])
+            should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
 
         if should_continue:
             user = SharedAuthBackend.userFromDict(dct)
             # Call extra params consumer again so that it can handle params after the user is created
             if extra_params_consumer:
-                extra_params_consumer(dct['u'], dct['extra_params'])
+                should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
             return user
         else:
             return None
@@ -120,13 +120,13 @@ class SharedAuthBackend(ModelBackend):
         extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
         if extra_params_consumer:
             extra_params_consumer = get_callable(extra_params_consumer)
-            should_continue = extra_params_consumer(dct['extra_params'])
+            should_continue, user = extra_params_consumer(dct['extra_params'])
 
         if should_continue:
             user = SharedAuthBackend.userFromDict(dct)
             # Call extra params consumer again so that it can handle params after the user is created
             if extra_params_consumer:
-                extra_params_consumer(dct['u'], dct['extra_params'])
+                should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
             return user
         else:
             return None
