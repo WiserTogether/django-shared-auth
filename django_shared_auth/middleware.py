@@ -30,23 +30,24 @@ class SharedAuthConsumerMiddleware(object):
             # getting passed in the headers, then the correct user is already
             # persisted in the session and we don't need to continue.
 
-            if request.user.is_authenticated():
+            # store the cookie on the request so the provider doesn't try to set
+            # a new one on every request
+            # We are seeing this user for the first time in this session, attempt
+            # to authenticate the user.
+            user = auth.authenticate(cookie_str=cookie_str)
+
+            if request.user.is_authenticated() and request.user == user:
                 return
+
+            if user:
+                # User is valid.  Set request.user and persist user in the session
+                # by logging the user in.
+                request.user = user
+                auth.login(request, user)
             else:
-                # store the cookie on the request so the provider doesn't try to set
-                # a new one on every request
-                # We are seeing this user for the first time in this session, attempt
-                # to authenticate the user.
-                user = auth.authenticate(cookie_str=cookie_str)
-                if user:
-                    # User is valid.  Set request.user and persist user in the session
-                    # by logging the user in.
-                    request.user = user
-                    auth.login(request, user)
-                else:
-                    redirect_to = getattr(settings, 'AUTHENTICATION_FAIL_REDIRECT_URL', None)
-                    if redirect_to:
-                        return HttpResponseRedirect(redirect_to)
+                redirect_to = getattr(settings, 'AUTHENTICATION_FAIL_REDIRECT_URL', None)
+                if redirect_to:
+                    return HttpResponseRedirect(redirect_to)
         else:
             if request.user.is_authenticated():
                 auth.logout(request)
