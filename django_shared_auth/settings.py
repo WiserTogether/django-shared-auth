@@ -4,7 +4,7 @@ settings
 """
 
 COOKIE_PATH=getattr(settings, 'SHARED_AUTH_COOKIE_PATH', '/')
-COOKIE_DOMAIN=getattr(settings, 'SHARED_AUTH_COOKIE_PATH', None)
+COOKIE_DOMAIN=getattr(settings, 'SHARED_AUTH_COOKIE_DOMAIN', None)
 COOKIE_NAME=getattr(settings, 'SHARED_AUTH_COOKIE_NAME', 'dsatok')
 SIGNED=getattr(settings, 'SHARED_AUTH_SIGNED', True)
 SECURE=getattr(settings, 'SESSION_COOKIE_SECURE', True)

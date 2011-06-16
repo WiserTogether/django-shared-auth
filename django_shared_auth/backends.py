@@ -6,7 +6,7 @@ try:
     from django_signed import signed
 except:
     logger.warning('django_signed unavailable, SIGNED mode unavailable')
-import json
+from django.utils import simplejson as json
 
 
 class SharedAuthBackend(ModelBackend):
