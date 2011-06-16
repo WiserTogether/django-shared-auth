@@ -84,22 +84,29 @@ class SharedAuthBackend(ModelBackend):
         should_continue = True
         extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
         if extra_params_consumer:
-            logger.debug('attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
+            logger.debug('1 attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
             extra_params_consumer = get_callable(extra_params_consumer)
             try:
                 should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
             except KeyError, e:
                 logger.warning('Invalid signed_str data: %s' % e)
                 should_continue = False
+            logger.debug('2 completed execution of EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
+        logger.debug('phase one complete, user=%s, should_continue=%s' %(user, should_continue))
 
         if should_continue:
+            logger.debug('unpacking user record')
             user = SharedAuthBackend.userFromDict(dct)
-            logger.debug('got user %s' (user.username))
+            logger.debug('got user %s'%(user.username))
             # Call extra params consumer again so that it can handle params after the user is created
             if extra_params_consumer:
+                logger.debug('3 attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
                 should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
+                logger.debug('4 completed execution of EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
+            logger.debug("callbacks completed, returning %s"%(str(user)))
             return user
         else:
+            logger.debug('unknown exception, bailing out')
             return None
 
     @staticmethod
