@@ -23,12 +23,14 @@ class SharedAuthConsumerMiddleware(object):
         )
     """
     def process_request(self, request):
+        logger.debug("processing request...")
         if request.COOKIES.has_key(settings.COOKIE_NAME):
             cookie_str = request.COOKIES.get(settings.COOKIE_NAME)
             setattr(request, settings.COOKIE_NAME, cookie_str)
             # If the user is already authenticated and that user is the user we are
             # getting passed in the headers, then the correct user is already
             # persisted in the session and we don't need to continue.
+            logger.debug('shared auth token found')
 
             # store the cookie on the request so the provider doesn't try to set
             # a new one on every request

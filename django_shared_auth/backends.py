@@ -1,6 +1,6 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
-from . import settings
+from . import settings, logger
 from django.core.urlresolvers import get_callable
 try:
     from django_signed import signed
@@ -78,16 +78,20 @@ class SharedAuthBackend(ModelBackend):
         """
         encode a sign a string
         """
+        logger.debug('extracting user record from signed cookie')
         dct = signed.loads(signed_str)
 
         should_continue = True
         extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
         if extra_params_consumer:
+            logger.debug('attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
             extra_params_consumer = get_callable(extra_params_consumer)
             should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
+            logger.debug('call to EXTRA_PARAMS_CONSUMER complete, should_continue = %s' %(str(should_continue),))
 
         if should_continue:
             user = SharedAuthBackend.userFromDict(dct)
+            logger.debug('got user %s' (user.username))
             # Call extra params consumer again so that it can handle params after the user is created
             if extra_params_consumer:
                 should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
