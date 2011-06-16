@@ -46,12 +46,16 @@ class SharedAuthConsumerMiddleware(object):
                 # by logging the user in.
                 request.user = user
                 auth.login(request, user)
+                request.session['SHARED_AUTH_USER'] = True
             else:
                 redirect_to = getattr(settings, 'AUTHENTICATION_FAIL_REDIRECT_URL', None)
                 if redirect_to:
                     return HttpResponseRedirect(redirect_to)
         else:
-            if request.user.is_authenticated():
+            if request.user.is_authenticated() \
+                    and hasattr(request, 'session') \
+                    and request.session.has_key('SHARED_AUTH_USER'):
+                logger.debug('user is authenticated via shared_auth without a token, logging out')
                 auth.logout(request)
 
 class SharedAuthProviderMiddleware(object):
