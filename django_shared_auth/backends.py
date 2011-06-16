@@ -86,8 +86,11 @@ class SharedAuthBackend(ModelBackend):
         if extra_params_consumer:
             logger.debug('attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
             extra_params_consumer = get_callable(extra_params_consumer)
-            should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
-            logger.debug('call to EXTRA_PARAMS_CONSUMER complete, should_continue = %s' %(str(should_continue),))
+            try:
+                should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
+            except KeyError, e:
+                logger.warning('Invalid signed_str data: %s' % e)
+                should_continue = False
 
         if should_continue:
             user = SharedAuthBackend.userFromDict(dct)
