@@ -64,6 +64,7 @@ class SharedAuthConsumerMiddleware(object):
                     auth.logout(request)
         except Exception, e:
             logger.exception(e)
+            return response
 
 class SharedAuthProviderMiddleware(object):
     """
@@ -123,4 +124,5 @@ class SharedAuthProviderMiddleware(object):
             return response
         except Exception, e:
             logger.exception(e)
+            return response
 
