@@ -94,7 +94,7 @@ class SharedAuthBackend(ModelBackend):
             user = SharedAuthBackend.userFromDict(dct)
             # Call extra params consumer again so that it can handle params after the user is created
             if extra_params_consumer:
-                should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
+                should_continue, user = extra_params_consumer(user.username, dct['extra_params'])
             return user
         else:
             return None
