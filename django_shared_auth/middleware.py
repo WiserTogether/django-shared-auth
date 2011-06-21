@@ -7,6 +7,10 @@ from django.http import HttpResponseRedirect
 from . import settings, logger
 from .backends import SharedAuthBackend
 
+import logging
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+
 class SharedAuthConsumerMiddleware(object):
     """
     Consume shared auth cookies and logging the user in automatically, and
@@ -24,7 +28,6 @@ class SharedAuthConsumerMiddleware(object):
     """
     def process_request(self, request):
         try:
-            logger.debug("processing request...")
             if request.COOKIES.has_key(settings.COOKIE_NAME):
                 cookie_str = request.COOKIES.get(settings.COOKIE_NAME)
                 setattr(request, settings.COOKIE_NAME, cookie_str)
@@ -44,7 +47,7 @@ class SharedAuthConsumerMiddleware(object):
                     return
 
                 if user:
-                    logger.debug('user exists, forwarding to backend')
+                    logger.debug('user exists, forwarding to backend %s' % user)
                     # User is valid.  Set request.user and persist user in the session
                     # by logging the user in.
                     request.user = user
@@ -64,7 +67,7 @@ class SharedAuthConsumerMiddleware(object):
                     auth.logout(request)
         except Exception, e:
             logger.exception(e)
-            return response
+            return request
 
 class SharedAuthProviderMiddleware(object):
     """
@@ -94,6 +97,7 @@ class SharedAuthProviderMiddleware(object):
         try:
             modify = False
             if 'UPDATE_SHAREDAUTH_COOKIE' in dict(response.items()):
+                logger.debug('UPDATE_SHAREDAUTH_COOKIE found, forcing cookie update')
                 response.__delitem__('UPDATE_SHAREDAUTH_COOKIE')
                 modify = True
 
@@ -120,7 +124,7 @@ class SharedAuthProviderMiddleware(object):
                     not (hasattr(request, 'user') and \
                     request.user.is_authenticated()) and \
                     request.COOKIES.has_key(settings.COOKIE_NAME):
-                response.delete_cookie(settings.COOKIE_NAME)
+                response.delete_cookie(settings.COOKIE_NAME, path=settings.COOKIE_PATH, domain=settings.COOKIE_DOMAIN)
             return response
         except Exception, e:
             logger.exception(e)
