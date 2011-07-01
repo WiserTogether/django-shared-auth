@@ -8,6 +8,7 @@ except:
     logger.warning('django_signed unavailable, SIGNED mode unavailable')
 from django.utils import simplejson as json
 
+LOGGIN = False
 
 class SharedAuthBackend(ModelBackend):
     """
@@ -78,35 +79,46 @@ class SharedAuthBackend(ModelBackend):
         """
         encode a sign a string
         """
-        logger.debug('extracting user record from signed cookie')
+        if LOGGIN:
+            logger.debug('extracting user record from signed cookie')
         dct = signed.loads(signed_str)
 
         should_continue = True
         extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
         if extra_params_consumer:
-            logger.debug('1 attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
+            if LOGGIN:
+                logger.debug('1 attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
             extra_params_consumer = get_callable(extra_params_consumer)
             try:
                 should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
             except KeyError, e:
-                logger.warning('Invalid signed_str data: %s' % e)
+                if LOGGIN:
+                    logger.warning('Invalid signed_str data: %s' % e)
                 should_continue = False
-            logger.debug('2 completed execution of EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
-        logger.debug('phase one complete, user=%s, should_continue=%s' %(user, should_continue))
+            if LOGGIN:
+                logger.debug('2 completed execution of EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
+        if LOGGIN:
+            logger.debug('phase one complete, user=%s, should_continue=%s' %(user, should_continue))
 
         if should_continue:
-            logger.debug('unpacking user record')
+            if LOGGIN:
+                logger.debug('unpacking user record')
             user = SharedAuthBackend.userFromDict(dct)
-            logger.debug('got user %s'%(user.username))
+            if LOGGIN:
+                logger.debug('got user %s'%(user.username))
             # Call extra params consumer again so that it can handle params after the user is created
             if extra_params_consumer:
-                logger.debug('3 attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
+                if LOGGIN:
+                    logger.debug('3 attempting to execute EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
                 should_continue, user = extra_params_consumer(user.username, dct['extra_params'])
-                logger.debug('4 completed execution of EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
-            logger.debug("callbacks completed, returning %s"%(str(user)))
+                if LOGGIN:
+                    logger.debug('4 completed execution of EXTRA_PARAMS_CONSUMER %s'%(extra_params_consumer))
+            if LOGGIN:
+                logger.debug("callbacks completed, returning %s"%(str(user)))
             return user
         else:
-            logger.debug('unknown exception, bailing out')
+            if LOGGIN:
+                logger.debug('unknown exception, bailing out')
             return None
 
     @staticmethod
