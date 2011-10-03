@@ -2,10 +2,17 @@ import time
 from django.contrib import auth
 
 from django.utils.http import cookie_date
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseServerError
 
 from . import settings, logger
 from .backends import SharedAuthBackend
+
+LOGGIN = False
+
+if LOGGIN:
+    import logging
+    #logging.basicConfig()
+    logger = logging.getLogger(__name__)
 
 class SharedAuthConsumerMiddleware(object):
     """
@@ -31,27 +38,52 @@ class SharedAuthConsumerMiddleware(object):
                 # getting passed in the headers, then the correct user is already
                 # persisted in the session and we don't need to continue.
 
+<<<<<<< HEAD
                 logger.debug('shared auth token found, authenticating user')
+=======
+                if LOGGIN:
+                    logger.debug('shared auth token found, authenticating user')
+>>>>>>> viraj-github/master
                 # store the cookie on the request so the provider doesn't try to set
                 # a new one on every request
                 # We are seeing this user for the first time in this session, attempt
                 # to authenticate the user.
                 user = auth.authenticate(cookie_str=cookie_str)
 
+<<<<<<< HEAD
                 #if request.user.is_authenticated() and request.user == user:
                 #    logger.debug('user is already properly authenticated')
                 #    return
 
                 if user:
                     logger.debug('user exists, forwarding to backend')
+=======
+                if request.user.is_authenticated() and request.user == user:
+                    if LOGGIN:
+                        logger.debug('user is already properly authenticated')
+                    return
+
+                if user:
+                    if LOGGIN:
+                        logger.debug('user exists, forwarding to backend %s' % user)
+>>>>>>> viraj-github/master
                     # User is valid.  Set request.user and persist user in the session
                     # by logging the user in.
                     request.user = user
                     auth.login(request, user)
+<<<<<<< HEAD
                     logger.debug('user logged in, session is %s' %(request.session))
                     request.session['SHARED_AUTH_USER'] = True
                 else:
                     logger.debug('invalid user, redirecting to failure notice')
+=======
+                    if LOGGIN:
+                        logger.debug('user logged in, session is %s' %(request.session))
+                    request.session['SHARED_AUTH_USER'] = True
+                else:
+                    if LOGGIN:
+                        logger.debug('invalid user, redirecting to failure notice')
+>>>>>>> viraj-github/master
                     redirect_to = getattr(settings, 'AUTHENTICATION_FAIL_REDIRECT_URL', None)
                     if redirect_to:
                         return HttpResponseRedirect(redirect_to)
@@ -59,11 +91,21 @@ class SharedAuthConsumerMiddleware(object):
                 if request.user.is_authenticated() \
                         and hasattr(request, 'session') \
                         and request.session.has_key('SHARED_AUTH_USER'):
+<<<<<<< HEAD
                     logger.debug('user is authenticated via shared_auth without a token, logging out')
                     auth.logout(request)
         except Exception, e:
             logger.exception(e)
             return response
+=======
+                    if LOGGIN:
+                        logger.debug('user is authenticated via shared_auth without a token, logging out')
+                    auth.logout(request)
+        except Exception, e:
+            if LOGGIN:
+                logger.exception(e)
+            return HttpResponseServerError('ERROR: Shared auth configuration error')
+>>>>>>> viraj-github/master
 
 class SharedAuthProviderMiddleware(object):
     """
@@ -93,7 +135,12 @@ class SharedAuthProviderMiddleware(object):
         try:
             modify = False
             if 'UPDATE_SHAREDAUTH_COOKIE' in dict(response.items()):
+<<<<<<< HEAD
                 logger.debug('UPDATE_SHAREDAUTH_COOKIE found, forcing cookie update')
+=======
+                if LOGGIN:
+                    logger.debug('UPDATE_SHAREDAUTH_COOKIE found, forcing cookie update')
+>>>>>>> viraj-github/master
                 response.__delitem__('UPDATE_SHAREDAUTH_COOKIE')
                 modify = True
 
@@ -123,6 +170,11 @@ class SharedAuthProviderMiddleware(object):
                 response.delete_cookie(settings.COOKIE_NAME, path=settings.COOKIE_PATH, domain=settings.COOKIE_DOMAIN)
             return response
         except Exception, e:
+<<<<<<< HEAD
             logger.exception(e)
+=======
+            if LOGGIN:
+                logger.exception(e)
+>>>>>>> viraj-github/master
             return response
 
