@@ -95,6 +95,7 @@ class SharedAuthProviderMiddleware(object):
             if 'UPDATE_SHAREDAUTH_COOKIE' in dict(response.items()):
                 response.__delitem__('UPDATE_SHAREDAUTH_COOKIE')
                 modify = True
+                logger.debug('modifying cookie')
 
             if getattr(request, 'session', None) and \
                     hasattr(request, 'user') and \
