@@ -42,7 +42,12 @@ class SharedAuthConsumerMiddleware(object):
                 # a new one on every request
                 # We are seeing this user for the first time in this session, attempt
                 # to authenticate the user.
-                user = auth.authenticate(cookie_str=cookie_str)
+                try:
+                    user = auth.authenticate(cookie_str=cookie_str)
+                except Exception, e:
+                    if LOGGIN:
+                        logger.error('Error: %s processing cookie string: %s', str(e), cookie_str)
+                    user = None
 
                 if request.user.is_authenticated() and request.user == user:
                     return
