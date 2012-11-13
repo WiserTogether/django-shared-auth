@@ -30,6 +30,7 @@ class SharedAuthConsumerMiddleware(object):
         )
     """
     def process_request(self, request):
+        logger.debug('Starting SharedAuthProviderMiddleware.process_request')
         try:
             if request.COOKIES.has_key(settings.COOKIE_NAME):
                 cookie_str = request.COOKIES.get(settings.COOKIE_NAME)
@@ -95,6 +96,7 @@ class SharedAuthProviderMiddleware(object):
         If the authenticated user disappears but the at cookie remains,
         the at cookie should be deleted.
         """
+        logger.debug('Starting SharedAuthProviderMiddleware.process_response')
         try:
             modify = False
             if 'UPDATE_SHAREDAUTH_COOKIE' in dict(response.items()):
