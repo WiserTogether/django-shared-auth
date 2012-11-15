@@ -3,7 +3,11 @@ from time import time, mktime
 from unittest2 import TestCase
 from django.contrib.auth.models import User
 import json
-from django_signed import signed
+try:
+    from django.core import signing
+except ImportError:
+    from django_signed import signed
+    signing = signed
 
 from ..backends import SharedAuthBackend
 from .. import settings
@@ -21,7 +25,6 @@ class TestStaticMethods(TestCase):
         """
         Set up the authtoken testcase
         """
-        settings.SIGNED = False
         self.user = User(username='testSharedAuthUser', email='test.user@nowhere.com', last_name='User',
                          first_name='Test')
         self.user.save()
@@ -49,7 +52,6 @@ class ClearSharedAuthBackendTest(TestCase):
         """
         Set up the authtoken testcase
         """
-        settings.SIGNED = False
         self.user = User(username='testSharedAuthUser', email='test.user@nowhere.com', last_name='User',
                          first_name='Test')
         self.user.save()
@@ -71,7 +73,7 @@ class ClearSharedAuthBackendTest(TestCase):
             """
             ensure we can build a cookie string for a user
             """
-            self.assertEqual(signed.loads(SharedAuthBackend.getCookieStr(self.user)), signed.loads(self.signed_str))
+            self.assertEqual(signing.loads(SharedAuthBackend.getCookieStr(self.user)), signing.loads(self.signed_str))
 
         def testFindUserByUserName(self):
             """
@@ -119,7 +121,6 @@ class SignedSharedAuthBackendTest(TestCase):
         """
         Set up the authtoken testcase
         """
-        settings.SIGNED = True
         self.user = User(username='testSharedAuthUser', email='test.user@nowhere.com', last_name='User',
                          first_name='Test')
         self.user.save()
@@ -134,8 +135,8 @@ class SignedSharedAuthBackendTest(TestCase):
         """
         ensure we can build a cookie string for a user
         """
-        self.assertEqual(signed.loads(SharedAuthBackend.getCookieStr(self.user)),
-                         signed.loads(SIGNED_STR))
+        self.assertEqual(signing.loads(SharedAuthBackend.getCookieStr(self.user)),
+                         signing.loads(SIGNED_STR))
 
     def testFindUserByUserName(self):
         """

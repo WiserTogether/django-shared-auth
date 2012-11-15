@@ -1,14 +1,15 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
-from . import settings, logger
 from django.core.urlresolvers import get_callable
 try:
+    from django.core import signing
+except ImportError:
     from django_signed import signed
-except:
-    logger.warning('django_signed unavailable, SIGNED mode unavailable')
+    signing = signed
+
 from django.utils import simplejson as json
 
-LOGGIN = False
+from . import settings, logger
 
 class SharedAuthBackend(ModelBackend):
     """
@@ -23,20 +24,14 @@ class SharedAuthBackend(ModelBackend):
         if cookie_str == None:
             return None
 
-        if settings.SIGNED:
-            return SharedAuthBackend.userFromSignedStr(cookie_str)
-        else:
-            return SharedAuthBackend.userFromJsonStr(cookie_str)
+        return SharedAuthBackend.userFromSignedStr(cookie_str)
 
     @staticmethod
     def getCookieStr(user):
         """
         create the cookie string for a user
         """
-        if settings.SIGNED:
-            return SharedAuthBackend.signedStrFromUser(user)
-        else:
-            return SharedAuthBackend.jsonStrFromUser(user)
+        return SharedAuthBackend.signedStrFromUser(user)
 
     @staticmethod
     def dictFromUser(user):
@@ -79,7 +74,7 @@ class SharedAuthBackend(ModelBackend):
         """
         encode a sign a string
         """
-        dct = signed.loads(signed_str)
+        dct = signing.loads(signed_str)
 
         should_continue = True
         extra_params_consumer = getattr(settings, 'EXTRA_PARAMS_CONSUMER', None)
@@ -88,8 +83,7 @@ class SharedAuthBackend(ModelBackend):
             try:
                 should_continue, user = extra_params_consumer(dct['u'], dct['extra_params'])
             except KeyError, e:
-                if LOGGIN:
-                    logger.warning('Invalid signed_str data: %s' % e)
+                logger.debug('Invalid signed_str data: %s' % e)
                 should_continue = False
 
         if should_continue:
@@ -113,7 +107,7 @@ class SharedAuthBackend(ModelBackend):
             extra_params_provider = get_callable(extra_params_provider)
             dct['extra_params'] = extra_params_provider(user)
 
-        return signed.dumps(dct)
+        return signing.dumps(dct)
 
     @staticmethod
     def userFromJsonStr(json_str):

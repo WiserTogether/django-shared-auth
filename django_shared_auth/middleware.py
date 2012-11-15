@@ -1,18 +1,10 @@
 import time
 from django.contrib import auth
-
 from django.utils.http import cookie_date
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
 from . import settings, logger
 from .backends import SharedAuthBackend
-
-LOGGIN = False
-
-if LOGGIN:
-    import logging
-    #logging.basicConfig()
-    logger = logging.getLogger(__name__)
 
 class SharedAuthConsumerMiddleware(object):
     """
@@ -46,8 +38,7 @@ class SharedAuthConsumerMiddleware(object):
                 try:
                     user = auth.authenticate(cookie_str=cookie_str)
                 except Exception, e:
-                    if LOGGIN:
-                        logger.error('Error: %s processing cookie string: %s', str(e), cookie_str)
+                    logger.error('Error: %s processing cookie string: %s', str(e), cookie_str)
                     user = None
 
                 if request.user.is_authenticated() and request.user == user:
