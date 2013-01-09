@@ -6,6 +6,9 @@ from django.http import HttpResponseRedirect, HttpResponseServerError
 from . import settings, logger
 from .backends import SharedAuthBackend
 
+def get_cookie_domain_from_settings(hostname):
+    return settings.COOKIE_DOMAIN
+
 class SharedAuthConsumerMiddleware(object):
     """
     Consume shared auth cookies and logging the user in automatically, and
@@ -76,6 +79,7 @@ class SharedAuthProviderMiddleware(object):
             ...
         )
     """
+
     def process_response(self, request, response):
         """
         process the response, adding appropriate set-cookie
@@ -88,6 +92,12 @@ class SharedAuthProviderMiddleware(object):
         the at cookie should be deleted.
         """
         logger.debug('Starting SharedAuthProviderMiddleware.process_response')
+
+        # get a handle to the get_cookie_domain function
+        get_cookie_domain = getattr(settings,
+            'SHARED_AUTH_GET_COOKIE_DOMAIN',
+            get_cookie_domain_from_settings
+        )
         try:
             modify = False
             if 'UPDATE_SHAREDAUTH_COOKIE' in dict(response.items()):
@@ -111,14 +121,16 @@ class SharedAuthProviderMiddleware(object):
                         SharedAuthBackend.getCookieStr(request.user),
                         max_age=max_age,
                         expires=expires,
-                        domain=settings.COOKIE_DOMAIN,
+                        domain=get_cookie_domain(request),
                         path=settings.COOKIE_PATH,
                         secure=settings.SECURE)
             if getattr(request, 'session', None) and \
                     not (hasattr(request, 'user') and \
                     request.user.is_authenticated()) and \
                     request.COOKIES.has_key(settings.COOKIE_NAME):
-                response.delete_cookie(settings.COOKIE_NAME, path=settings.COOKIE_PATH, domain=settings.COOKIE_DOMAIN)
+                response.delete_cookie(settings.COOKIE_NAME,
+                    path=settings.COOKIE_PATH,
+                    domain=get_cookie_domain(request))
             return response
         except Exception, e:
             logger.exception(e)

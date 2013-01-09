@@ -1,6 +1,6 @@
 import logging
 
-VERSION = (0, 1, 'pre')
+VERSION = (0, 2)
 
 # Dynamically calculate the version based on VERSION tuple
 if len(VERSION) > 2 and VERSION[2] is not None:
