@@ -7,7 +7,7 @@ except ImportError:
     from django_signed import signed
     signing = signed
 
-from django.utils import simplejson as json
+import json
 
 from . import settings, logger
 
